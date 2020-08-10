@@ -8,7 +8,7 @@
 <body>
 
 
-//https://github.com/kaihuayu/phpjscount-date.git
+//git remote add origin https://github.com/kaihuayu/phpjscount-date.git
 <div>
 <form class="" >
 <input type="text" class="input-text radius" style="width:170px;"  id="create_begin" placeholder="提交开始时间" name="create_begin" value="" onclick="WdatePicker({readOnly:true, dateFmt:'yyyy-MM-dd HH:mm'})"> -
@@ -25,7 +25,10 @@ function jisuan(){
 	var sDate1=$("#create_begin").val();
 var sDate2=$("#create_end").val();
 	var d=getDiffYmdBetweenDate(sDate1,sDate2);
-	alert("相差"+d.y+"年" +d.m + "月"+ d.d +"天");
+	alert("相差"+d.y+"年" +d.m + "月"+ d.d +"天"+d.day+"总天");
+	
+	//var day=dateDiff(sDate1,sDate2);
+	//alert(day);
 	
 }
 
@@ -83,6 +86,7 @@ function getDiffYmdBetweenDate(sDate1,sDate2){
     var y = 0;
     var m = 0;
     var d = 0;
+	var day =0 ;
     var sTmp;
     var aTmp;
     sDate1 = fixDate(sDate1);
@@ -141,9 +145,76 @@ function getDiffYmdBetweenDate(sDate1,sDate2){
             break; //直到等于天数 返回 跳出循环。
         }
     }
-    return {y:y,m:m,d:d}
+	
+	//计算总天数
+	aTmp = [aDate1[0],aDate1[1],aDate1[2]];
+	
+	while(true){
+		
+		aTmp[2]++;  //天+1
+		
+		if(aTmp[2] == getMonthDays(aTmp[0],aTmp[1])){
+			aTmp[1]++;   //月份加1
+            aTmp[2] = 1;
+		}
+		
+		if(aTmp[1] > 12){    //如果月 大于12
+			aTmp[0]++;          //年就加1
+			aTmp[1] -= 12; // 月就减12
+		}
+	
+	
+	
+		sTmp = ([aTmp[0],fixZero(aTmp[1]),fixZero(aTmp[2])]).join('-');  
+        if(sTmp <= sDate2 ){ //比较如果Stmp 日期小于 sDate2 d天就+ 	
+		 if(!getHoliday(sTmp) && !get_day(sTmp)){  //如果不是放假 或者不是周六日
+            day++; 
+		 }			
+        } else {
+            break; //直到等于天数 返回 跳出循环。
+        }
+		
+	}
+	
+	
+	
+    return {y:y,m:m,d:d,day:day}
 }
     
+
+
+
+/** 
+ * 计算2个日期相差的天数，不包含今天，如：2016-12-13到2016-12-15，相差2天 
+ * @param startDateString 
+ * @param endDateString 
+ * @returns 
+ */  
+function dateDiff(startDateString, endDateString){  
+    var separator = "-"; //日期分隔符  
+    var startDates = startDateString.split(separator);  
+    var endDates = endDateString.split(separator);  
+    var startDate = new Date(startDates[0], startDates[1]-1, startDates[2]);  
+    var endDate = new Date(endDates[0], endDates[1]-1, endDates[2]);  
+    return parseInt(Math.abs(endDate - startDate ) / 1000 / 60 / 60 /24);//把相差的毫秒数转换为天数   
+};  
+  
+  
+/** 
+ * 计算2个日期相差的天数，包含今天，如：2016-12-13到2016-12-15，相差3天 
+ * @param startDateString 
+ * @param endDateString 
+ * @returns 
+ */  
+function dateDiffIncludeToday(startDateString, endDateString){  
+    var separator = "-"; //日期分隔符  
+    var startDates = startDateString.split(separator);  
+    var endDates = endDateString.split(separator);  
+    var startDate = new Date(startDates[0], startDates[1]-1, startDates[2]);  
+    var endDate = new Date(endDates[0], endDates[1]-1, endDates[2]);  
+    return parseInt(Math.abs(endDate - startDate ) / 1000 / 60 / 60 /24) + 1;//把相差的毫秒数转换为天数   
+}
+
 
 
 </script>
